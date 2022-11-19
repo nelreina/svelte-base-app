@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { client } from './redis-client';
+import { addToStream, client } from './redis-client';
 import { getTimeStamp } from '$lib/utils/date-utils';
 import { base } from '$app/paths';
 
@@ -32,6 +32,7 @@ export const createSession = async (cookies, loggedInUser) => {
 
 	await client.json.set(sessionToken, '.', sessionData);
 	await client.sAdd(SESSION_ALL_ACTIVE, sessionToken);
+	await addToStream('SESSION:CREATED', username, { ...sessionData, sessionToken });
 	cookies.set(SESSION_COOKIE_NAME, sessionToken),
 		{ httpOnly: true, path: '/', sameSite: 'strict', secure };
 	if (SESSION_TIMEOUT) {
@@ -42,8 +43,10 @@ export const createSession = async (cookies, loggedInUser) => {
 };
 
 export const deleteSession = async (session) => {
+	const user = await client.json.get(session);
 	await client.del(session);
 	await client.sRem(SESSION_ALL_ACTIVE, session);
+	await addToStream('SESSION:DELETED', user?.username || session, {});
 };
 
 export const clearSession = async ({ cookies }) => {
