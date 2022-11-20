@@ -1,5 +1,5 @@
 import { readable } from 'svelte/store';
-import { pb } from '../../../config/pocketbase';
+import { pb } from '../../../client/config/pocketbase';
 
 export const pbSessions = readable({}, (set) => {
 	pb.collection('sessions').subscribe('*', (data) => {

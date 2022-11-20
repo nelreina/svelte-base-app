@@ -1,6 +1,6 @@
 import { invalid, redirect } from '@sveltejs/kit';
-import { restClient } from '../../config/rest-client';
-import { createSession } from '../../config/session';
+import { restClient } from '../../server/config/rest-client';
+import { createSession } from '../../server/config/session';
 import { base } from '$app/paths';
 
 export const load = async ({ locals }) => {

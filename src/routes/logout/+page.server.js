@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { clearSession } from '../../config/session';
+import { clearSession } from '../../server/config/session';
 import { base } from '$app/paths';
 
 export const load = async () => {

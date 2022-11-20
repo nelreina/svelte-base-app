@@ -1,4 +1,4 @@
-import { checkSession } from './config/session';
+import { checkSession } from './server/config/session';
 
 export const handle = async ({ event, resolve }) => {
 	await checkSession(event);
