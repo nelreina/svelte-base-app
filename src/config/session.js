@@ -13,7 +13,7 @@ const secure = process.env.NODE_ENV === 'production';
 export const createSession = async (cookies, loggedInUser) => {
 	const token = crypto.randomUUID();
 
-	const sessionToken = `${SESSION_PREFIX}${token}`;
+	const sessionId = `${SESSION_PREFIX}${token}`;
 	const { jwt, user, userAgent } = loggedInUser;
 	const { role, username, email } = user;
 	const { type } = role;
@@ -30,13 +30,13 @@ export const createSession = async (cookies, loggedInUser) => {
 		userAgent
 	};
 
-	await client.json.set(sessionToken, '.', sessionData);
-	await client.sAdd(SESSION_ALL_ACTIVE, sessionToken);
-	await addToStream('SESSION:CREATED', username, { ...sessionData, sessionToken });
-	cookies.set(SESSION_COOKIE_NAME, sessionToken),
+	await client.json.set(sessionId, '.', sessionData);
+	await client.sAdd(SESSION_ALL_ACTIVE, sessionId);
+	await addToStream('SESSION:CREATED', username, { ...sessionData, sessionId });
+	cookies.set(SESSION_COOKIE_NAME, sessionId),
 		{ httpOnly: true, path: '/', sameSite: 'strict', secure };
 	if (SESSION_TIMEOUT) {
-		await client.expire(sessionToken, parseInt(SESSION_TIMEOUT));
+		await client.expire(sessionId, parseInt(SESSION_TIMEOUT));
 	}
 
 	return token;
@@ -46,7 +46,9 @@ export const deleteSession = async (session) => {
 	const user = await client.json.get(session);
 	await client.del(session);
 	await client.sRem(SESSION_ALL_ACTIVE, session);
-	await addToStream('SESSION:DELETED', user?.username || session, {});
+	await addToStream('SESSION:DELETED', user?.username || session, {
+		pbSession: user.pbSession
+	});
 };
 
 export const clearSession = async ({ cookies }) => {

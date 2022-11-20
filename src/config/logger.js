@@ -4,7 +4,7 @@ import pretty from 'pino-pretty';
 export const loggerOptions = pretty({
 	colorize: true,
 	translateTime: true,
-	messageFormat: 'srv-quotation: {msg}'
+	messageFormat: 'bas-app: {msg}'
 });
 
 export default pino(loggerOptions);
