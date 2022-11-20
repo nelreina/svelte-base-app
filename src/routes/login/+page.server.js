@@ -1,5 +1,4 @@
 import { invalid, redirect } from '@sveltejs/kit';
-import { restClient } from '../../server/config/rest-client';
 import { createSession } from '../../server/sessions';
 import { base } from '$app/paths';
 
@@ -13,11 +12,11 @@ export const load = async ({ locals }) => {
 
 // Path: src/routes/login/+page.server.js
 export const actions = {
-	login: async ({ request, cookies }) => {
+	login: async ({ request, locals }) => {
 		const formData = await request.formData();
 		const identifier = formData.get('identifier');
 		const password = formData.get('password');
-		const userAgent = formData.get('userAgent');
+		const { pb } = locals;
 		try {
 			if (!identifier || !password) {
 				return invalid(400, {
@@ -27,21 +26,15 @@ export const actions = {
 				});
 			}
 
-			const user = await restClient.post('/auth/local', { identifier, password });
-			if (user.error) {
-				return invalid(400, {
-					identifier,
-					error: true,
-					message: 'Unable to login. Invalid user or password'
-				});
-			}
+			const user = await pb.collection('users').authWithPassword(identifier, password);
 
-			await createSession(cookies, { ...user, userAgent });
+			await createSession(user);
 		} catch (error) {
+			console.log('Login failed', error.message);
 			return invalid(400, {
 				identifier,
 				error: true,
-				message: 'Unable to login.'
+				message: error.message
 			});
 		}
 		throw redirect(302, `${base}/dashboard`);

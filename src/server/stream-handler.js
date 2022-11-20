@@ -1,19 +1,13 @@
 import logger from './config/logger';
-import { pb } from './config/pocketbase.js';
-import { client } from './config/redis-client';
+import { pbAdmin } from './config/pocketbase.js';
+// import { client } from './config/redis-client';
 
 export const handler = async (stream) => {
-	const { streamId, aggregateId, event, payload } = stream;
+	const { streamId, aggregateId, event } = stream;
 	logger.info(`Stream: - Aggregate: ${aggregateId} - Event: ${event} }`);
 	if (event === 'SESSION:CREATED') {
 		try {
-			const { username, email, role, sessionId, loggedInAt } = payload;
-
-			const pbSession = await pb
-				.collection('sessions')
-				.create({ username, email, role, sessionId, loggedInAt });
-			client.json.set(sessionId, '.pbSession', pbSession);
-
+			pbAdmin.collection('users').update(aggregateId, { isOnline: true });
 			stream.ack(streamId);
 		} catch (error) {
 			logger.error(error);
@@ -21,10 +15,7 @@ export const handler = async (stream) => {
 	}
 	if (event === 'SESSION:DELETED') {
 		try {
-			const { pbSession } = payload;
-			if (pbSession) {
-				await pb.collection('sessions').delete(pbSession.id);
-			}
+			pbAdmin.collection('users').update(aggregateId, { isOnline: false });
 			stream.ack(streamId);
 		} catch (error) {
 			logger.error(error);
