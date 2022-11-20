@@ -33,7 +33,8 @@ export const deleteSession = async (userId) => {
 };
 
 export const clearSession = async ({ locals }) => {
-	await deleteSession(locals.user?.id);
+	const userId = locals.pb.authStore.model.id;
+	await deleteSession(userId);
 	locals.pb.authStore.clear();
 };
 
@@ -43,7 +44,18 @@ export const checkSession = async (event, resolve) => {
 	event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');
 
 	if (event.locals.pb.authStore.isValid) {
-		event.locals.user = event.locals.pb.authStore.model;
+		const sessionId = `${SESSION_PREFIX}${event.locals.pb.authStore.model.id}`;
+		const sessionData = await client.json.get(sessionId);
+		if (sessionData) {
+			event.locals.user = event.locals.pb.authStore.model;
+			if (SESSION_TIMEOUT) {
+				await client.expire(sessionId, parseInt(SESSION_TIMEOUT));
+			}
+		} else {
+			// session has expired
+			await clearSession(event);
+			event.locals.user = null;
+		}
 	}
 
 	const response = await resolve(event);
