@@ -27,7 +27,8 @@ export const createSession = async (cookies, loggedInUser) => {
 		email,
 		isAdmin,
 		loggedInAt: getTimeStamp(),
-		userAgent
+		userAgent,
+		sessionId
 	};
 
 	await client.json.set(sessionId, '.', sessionData);
