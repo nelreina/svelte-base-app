@@ -47,7 +47,7 @@ export const deleteSession = async (session) => {
 	await client.del(session);
 	await client.sRem(SESSION_ALL_ACTIVE, session);
 	await addToStream('SESSION:DELETED', user?.username || session, {
-		pbSession: user.pbSession
+		pbSession: user?.pbSession
 	});
 };
 

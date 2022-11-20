@@ -7,11 +7,11 @@ export const handler = async (stream) => {
 	logger.info(`Stream: - Aggregate: ${aggregateId} - Event: ${event} }`);
 	if (event === 'SESSION:CREATED') {
 		try {
-			const { username, email, role, sessionId } = payload;
+			const { username, email, role, sessionId, loggedInAt } = payload;
 
 			const pbSession = await pb
 				.collection('sessions')
-				.create({ username, email, role, sessionId });
+				.create({ username, email, role, sessionId, loggedInAt });
 			client.json.set(sessionId, '.pbSession', pbSession);
 
 			stream.ack(streamId);
@@ -22,7 +22,9 @@ export const handler = async (stream) => {
 	if (event === 'SESSION:DELETED') {
 		try {
 			const { pbSession } = payload;
-			await pb.collection('sessions').delete(pbSession.id);
+			if (pbSession) {
+				await pb.collection('sessions').delete(pbSession.id);
+			}
 			stream.ack(streamId);
 		} catch (error) {
 			logger.error(error);
