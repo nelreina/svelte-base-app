@@ -1,6 +1,6 @@
-import logger from './logger';
-import { pb } from './pocketbase.js';
-import { client } from './redis-client';
+import logger from './config/logger';
+import { pb } from './config/pocketbase.js';
+import { client } from './config/redis-client';
 
 export const handler = async (stream) => {
 	const { streamId, aggregateId, event, payload } = stream;

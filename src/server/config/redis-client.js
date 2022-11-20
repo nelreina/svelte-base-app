@@ -3,7 +3,7 @@ import { createClient } from 'redis';
 import { newEventStreamService as EventStream } from '@nelreina/redis-stream-consumer';
 import { addToEventLog } from '@nelreina/redis-stream-consumer';
 import logger from './logger';
-import { handler } from './stream-handler';
+import { handler } from '../stream-handler';
 const STREAM = process.env['STREAM'] || 'session:audit';
 
 const SERVICE_NAME = process.env['SERVICE_NAME'];

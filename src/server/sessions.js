@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { addToStream, client } from './redis-client';
+import { addToStream, client } from './config/redis-client';
 import { getTimeStamp } from '$lib/utils/date-utils';
 import { base } from '$app/paths';
 
