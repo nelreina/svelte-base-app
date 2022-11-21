@@ -16,7 +16,7 @@ export const createSession = async (loggedInUser) => {
 
 	await client.json.set(sessionId, '.', { user });
 	await client.sAdd(SESSION_ALL_ACTIVE, sessionId);
-	await addToStream('SESSION:CREATED', user.id, { ...user, sessionId });
+	await addToStream('SESSION:CREATED', user.id, { ...user, sessionId }, true);
 	if (SESSION_TIMEOUT) {
 		await client.expire(sessionId, parseInt(SESSION_TIMEOUT));
 	}
@@ -29,7 +29,7 @@ export const deleteSession = async (userId) => {
 	const sessionId = `${SESSION_PREFIX}${userId}`;
 	await client.del(sessionId);
 	await client.sRem(SESSION_ALL_ACTIVE, sessionId);
-	await addToStream('SESSION:DELETED', userId, {});
+	await addToStream('SESSION:DELETED', userId, {}, true);
 };
 
 export const clearSession = async ({ locals }) => {
