@@ -33,11 +33,11 @@ export const client = createClient({ url, name: SERVICE_NAME });
 	if (!client.isOpen) await client.connect();
 	logger.info(`Connected to Redis at ${REDIS_HOST}:${REDIS_PORT}`);
 	// Session Stream
-	let msg = await EventStream(client, SESSION_STREAM, 'BASE-APP', false, sHandler, '0', logger);
+	let msg = await EventStream(client, SESSION_STREAM, 'base-app', false, sHandler, '0', logger);
 	logger.info(msg);
 	// Application Stream
 	if (STREAM) {
-		msg = await EventStream(client, STREAM, 'BASE-APP', events, handler, '0', logger);
+		msg = await EventStream(client, STREAM, 'base-app', events, handler, '0', logger);
 		logger.info(msg);
 	}
 })();
@@ -50,7 +50,7 @@ export const addToStream = async (event, aggregateId, payload, session = false) 
 		aggregateId,
 		payload,
 		event,
-		serviceName: 'BASE-APP'
+		serviceName: 'base-app'
 	};
 	// strapi.log.info(JSON.stringify(streamData));
 	await addToEventLog(client, streamData);

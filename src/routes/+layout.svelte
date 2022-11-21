@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Base App</title>
+	<title>base-app</title>
 </svelte:head>
 
 <slot />

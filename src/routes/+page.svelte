@@ -10,7 +10,7 @@
 	<div class="hero-overlay bg-opacity-60" />
 	<div class="hero-content text-center text-neutral-content">
 		<div class="max-w-md">
-			<h1 class="mb-5 text-5xl font-bold">Welcome to App Name</h1>
+			<h1 class="mb-5 text-5xl font-bold">Welcome to base-app</h1>
 			{#if !$page.data.user}
 				<p class="mb-5">
 					Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi
