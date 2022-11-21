@@ -60,7 +60,10 @@ export const checkSession = async (event, resolve) => {
 
 	const response = await resolve(event);
 
-	response.headers.set('set-cookie', event.locals.pb.authStore.exportToCookie({ secure }));
+	response.headers.set(
+		'set-cookie',
+		event.locals.pb.authStore.exportToCookie({ httpOnly: false, secure })
+	);
 
 	return response;
 };

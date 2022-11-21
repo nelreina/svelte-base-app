@@ -24,6 +24,7 @@
 		<ul class="menu p-4 w-48 bg-base-100 text-base-content">
 			<!-- Sidebar content here -->
 			<li><a href="{base}/dashboard">Dashboard</a></li>
+			<li><a href="{base}/products">Products</a></li>
 		</ul>
 	</div>
 </div>
