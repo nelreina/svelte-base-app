@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { deleteSession, getAllActiveSessions } from '../../../server/sessions';
+import { deleteSession, getAllActiveSessions } from '$server/sessions';
 import { base } from '$app/paths';
 
 export const load = async ({ locals }) => {

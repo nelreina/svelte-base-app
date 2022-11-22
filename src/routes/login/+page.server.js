@@ -1,5 +1,5 @@
 import { invalid, redirect } from '@sveltejs/kit';
-import { createSession } from '../../server/sessions';
+import { createSession } from '$server/sessions';
 import { base } from '$app/paths';
 
 export const load = async ({ locals }) => {
