@@ -1,5 +1,4 @@
-FROM node:16-alpine AS builder
-ENV NODE_ENV=prodcution
+FROM node:16-slim AS builder
 ENV REDIS_HOST=172.17.0.1
 RUN mkdir /appsrc
 WORKDIR /appsrc
@@ -11,8 +10,10 @@ RUN npm prune --production
 
 
 FROM node:16-slim
-ENV NODE_ENV=prodcution
+ENV NODE_ENV=production
 ENV REDIS_HOST=redis
+RUN apt-get install tzdata
+ENV TZ America/Curacao
 EXPOSE 3000
 
 RUN mkdir /app && chown -R node:node /app
