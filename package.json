@@ -35,7 +35,7 @@
 		"eventsource": "^2.0.2",
 		"pino": "^8.7.0",
 		"pino-pretty": "^9.1.1",
-		"pocketbase": "^0.8.0",
+		"pocketbase": "0.8.0",
 		"redis": "^4.5.0"
 	}
 }
