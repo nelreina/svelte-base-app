@@ -42,10 +42,9 @@ export const createSession = async (cookies, session) => {
 };
 
 export const deleteSession = async (sessionId) => {
-	const sessionData = await client.json.get(sessionId);
 	await client.del(sessionId);
 	await client.sRem(SESSION_ALL_ACTIVE, sessionId);
-	await addToStream('SESSION:DELETED', sessionData?.username || sessionId, {});
+	await addToStream('SESSION:DELETED', sessionId, {});
 };
 
 export const clearSession = async ({ locals, cookies }) => {
@@ -84,9 +83,13 @@ export const getAllActiveSessions = async () => {
 	const sessions = await Promise.all(
 		sessionList.map(async (session) => {
 			const user = await client.json.get(session);
-			// eslint-disable-next-line no-unused-vars
-			const { token, ...rest } = user;
-			return { session, ...rest };
+			if (!user) {
+				await deleteSession(session);
+			} else {
+				// eslint-disable-next-line no-unused-vars
+				const { token, ...rest } = user;
+				return { session, ...rest };
+			}
 		})
 	);
 
