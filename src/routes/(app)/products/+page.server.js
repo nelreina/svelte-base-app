@@ -7,8 +7,13 @@ export const load = async ({ locals }) => {
 	if (!locals.user) {
 		throw redirect('303', base);
 	}
-	const records = await pbAdmin.collection('products').getFullList();
-	const products = serializePOJO(records);
+	try {
+		const records = await pbAdmin.collection('products').getFullList();
+		const products = serializePOJO(records);
 
-	return { products: products };
+		return { products: products };
+	} catch (error) {
+		console.log(error.message);
+		return { error: true, products: [] };
+	}
 };
