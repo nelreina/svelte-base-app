@@ -1,6 +1,6 @@
 <script>
 	export let sessions;
-	// export let username;
+	export let username;
 </script>
 
 <div class="overflow-x-auto card card-body shadow-md">
@@ -23,12 +23,12 @@
 					<td>{active.role}</td>
 					<td>{active.loggedInAt}</td>
 					<td>
-						<!-- {#if active.username !== username}
+						{#if active.username !== username}
 							<form action="?/delete" method="POST">
 								<input type="hidden" name="session" value={active.session} />
 								<button type="submit" class="btn btn-link">Delete</button>
 							</form>
-						{/if} -->
+						{/if}
 					</td>
 				</tr>
 			{/each}

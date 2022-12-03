@@ -1,73 +1,79 @@
 import 'dotenv/config';
-import PocketBase from 'pocketbase';
-
+import { getTimeStamp } from '$lib/utils/date-utils';
 import { addToStream, client } from './config/redis-client';
 
-const POCKETBASE = process.env['POCKETBASE'];
 const SESSION_TIMEOUT = process.env['SESSION_TIMEOUT'];
 const SESSION_PREFIX = process.env['SESSION_PREFIX'];
 const SESSION_ALL_ACTIVE = process.env['SESSION_ALL_ACTIVE'];
+const SESSION_COOKIE_NAME = process.env['SESSION_COOKIE_NAME'];
 
 const secure = process.env.NODE_ENV === 'production';
 
-export const createSession = async (loggedInUser) => {
-	const { record: user } = loggedInUser;
-	const sessionId = `${SESSION_PREFIX}${user.id}`;
+export const createSession = async (cookies, session) => {
+	const token = crypto.randomUUID();
 
-	await client.json.set(sessionId, '.', { user });
+	const sessionId = `${SESSION_PREFIX}${token}`;
+	const { jwt, user } = session;
+	const { role, username, email } = user;
+	const { type } = role;
+
+	const isAdmin = type === 'admin';
+
+	const sessionData = {
+		token: jwt,
+		role: type,
+		username,
+		email,
+		isAdmin,
+		loggedInAt: getTimeStamp(),
+		sessionId
+	};
+
+	await client.json.set(sessionId, '.', sessionData);
 	await client.sAdd(SESSION_ALL_ACTIVE, sessionId);
-	await addToStream('SESSION:CREATED', user.id, { ...user, sessionId }, true);
+	await addToStream('SESSION:CREATED', username, { ...sessionData, sessionId });
+	cookies.set(SESSION_COOKIE_NAME, sessionId),
+		{ httpOnly: true, path: '/', sameSite: 'strict', secure };
 	if (SESSION_TIMEOUT) {
 		await client.expire(sessionId, parseInt(SESSION_TIMEOUT));
 	}
 
-	return user.id;
+	return token;
 };
 
-export const deleteSession = async (userId) => {
-	// const sessionData = await client.json.get(session);
-	const sessionId = `${SESSION_PREFIX}${userId}`;
+export const deleteSession = async (sessionId) => {
+	const sessionData = await client.json.get(sessionId);
 	await client.del(sessionId);
 	await client.sRem(SESSION_ALL_ACTIVE, sessionId);
-	await addToStream('SESSION:DELETED', userId, {}, true);
+	await addToStream('SESSION:DELETED', sessionData?.username || sessionId, {});
 };
 
-export const clearSession = async ({ locals }) => {
-	const userId = locals.pb.authStore.model.id;
-	await deleteSession(userId);
-	locals.pb.authStore.clear();
+export const clearSession = async ({ locals, cookies }) => {
+	const sessionId = cookies?.get(SESSION_COOKIE_NAME);
+	locals.user = null;
+	await deleteSession(sessionId);
 };
 
 export const checkSession = async (event, resolve) => {
-	event.locals.pb = new PocketBase(POCKETBASE);
+	const sessionId = event.cookies?.get(SESSION_COOKIE_NAME);
 
-	event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');
-
-	if (event.locals.pb.authStore.isValid) {
-		const sessionId = `${SESSION_PREFIX}${event.locals.pb.authStore.model.id}`;
-		const sessionData = await client.json.get(sessionId);
-		if (sessionData) {
-			event.locals.user = event.locals.pb.authStore.model;
-			if (SESSION_TIMEOUT) {
-				await client.expire(sessionId, parseInt(SESSION_TIMEOUT));
-			}
-		} else {
-			// session has expired
-			await clearSession(event);
-			event.locals.user = null;
-		}
+	if (!sessionId) {
+		return await resolve(event);
 	}
 
-	const response = await resolve(event);
-
-	response.headers.set(
-		'set-cookie',
-		event.locals.pb.authStore.exportToCookie({ httpOnly: false, secure })
-	);
-
-	return response;
+	const user = await client.json.get(sessionId);
+	if (!user) {
+		await clearSession(event);
+	} else {
+		// eslint-disable-next-line no-unused-vars
+		const { token, ...rest } = user;
+		event.locals.user = rest;
+		if (SESSION_TIMEOUT) {
+			await client.expire(sessionId, parseInt(SESSION_TIMEOUT));
+		}
+	}
+	return await resolve(event);
 };
-
 export const getAllActiveSessions = async () => {
 	const sessionList = await client.sMembers(SESSION_ALL_ACTIVE);
 

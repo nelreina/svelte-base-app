@@ -4,13 +4,8 @@ import { newEventStreamService as EventStream } from '@nelreina/redis-stream-con
 import { addToEventLog } from '@nelreina/redis-stream-consumer';
 import logger from './logger';
 import { handler as sHandler } from '../session-stream-handler';
-import { handler } from '../stream-handler';
 const SESSION_STREAM = 'session:audit:base-app';
-
-const STREAM = process.env['STREAM'];
-const STREAM_EVENTS = process.env['STREAM_EVENTS'];
-
-const events = STREAM_EVENTS?.split(',');
+const isProd = process.env.NODE_ENV === 'production';
 
 const SERVICE_NAME = process.env['SERVICE_NAME'];
 const REDIS_HOST = process.env['REDIS_HOST'];
@@ -33,20 +28,23 @@ export const client = createClient({ url, name: SERVICE_NAME });
 	if (!client.isOpen) await client.connect();
 	logger.info(`Connected to Redis at ${REDIS_HOST}:${REDIS_PORT}`);
 	// Session Stream
-	let msg = await EventStream(client, SESSION_STREAM, 'base-app', false, sHandler, '0', logger);
+	let msg = await EventStream(
+		client,
+		SESSION_STREAM,
+		`base-app${!isProd || '-dev'}`,
+		false,
+		sHandler,
+		'0',
+		logger
+	);
 	logger.info(msg);
-	// Application Stream
-	if (STREAM) {
-		msg = await EventStream(client, STREAM, 'base-app', events, handler, '0', logger);
-		logger.info(msg);
-	}
 })();
 
-export const addToStream = async (event, aggregateId, payload, session = false) => {
+export const addToStream = async (event, aggregateId, payload, stream = null) => {
 	if (!client.isOpen) await client.connect();
 
 	const streamData = {
-		streamKeyName: session ? SESSION_STREAM : STREAM,
+		streamKeyName: stream || SESSION_STREAM,
 		aggregateId,
 		payload,
 		event,

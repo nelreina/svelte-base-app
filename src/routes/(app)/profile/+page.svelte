@@ -3,8 +3,6 @@
 	const { user } = data;
 	const POCKETBASE = import.meta.env['VITE_POCKETBASE'] || 'http://127.0.0.1:8090';
 
-	let date = new Date(user?.updated).toLocaleDateString();
-	let time = new Date(user?.updated).toLocaleTimeString();
 	let avatar = `${POCKETBASE}/api/files/users/${user?.id}/${user?.avatar}?thumb=100x100`;
 </script>
 
@@ -22,7 +20,7 @@
 				<li>{user?.email}</li>
 				<div class="divider" />
 				<li class="text-xs">Login At</li>
-				<li class="text-xs">{date}: {time}</li>
+				<li class="text-xs">{user.loggedInAt}</li>
 			</ul>
 		</div>
 	</div>
