@@ -1,24 +1,36 @@
 import { readable } from 'svelte/store';
 import { pb } from '$lib/services/pocketbase';
 
-export const getPbRealtimeDataStore = (data, collection, recordId = 'id') =>
-	readable(data[collection], (set) => {
+export const getPbRealtimeDataStore = (data, collection, recordId = 'id') => {
+	const highlightTime = 1000;
+	const findAndUpdateSession = (sessions, record, highlight) =>
+		sessions.map((session) => {
+			if (session[recordId] === record[recordId]) {
+				return { ...record, highlight };
+			}
+			return session;
+		});
+
+	return readable(data[collection], (set) => {
 		let sessions = data[collection];
 		pb.collection(collection).subscribe('*', (coll) => {
 			const { action, record } = coll;
 			switch (action) {
 				case 'create':
-					sessions = [record, ...sessions];
+					sessions = [{ ...record, highlight: true }, ...sessions];
+					setTimeout(() => {
+						sessions = findAndUpdateSession(sessions, record, false);
+						set(sessions);
+					}, highlightTime);
 					break;
 
 				case 'update':
 					console.log('update');
-					sessions = sessions.map((session) => {
-						if (session[recordId] === record[recordId]) {
-							return record;
-						}
-						return session;
-					});
+					sessions = findAndUpdateSession(sessions, record, true);
+					setTimeout(() => {
+						sessions = findAndUpdateSession(sessions, record, false);
+						set(sessions);
+					}, highlightTime);
 					break;
 
 				case 'delete':
@@ -35,3 +47,4 @@ export const getPbRealtimeDataStore = (data, collection, recordId = 'id') =>
 			pb.collection(collection).unsubscribe();
 		}; // noop
 	});
+};

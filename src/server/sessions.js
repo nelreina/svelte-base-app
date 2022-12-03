@@ -1,13 +1,13 @@
-import {
-	POCKETBASE,
-	SESSION_TIMEOUT,
-	SESSION_PREFIX,
-	SESSION_ALL_ACTIVE
-} from '$env/static/private';
+import 'dotenv/config';
 import PocketBase from 'pocketbase';
 
 import { addToStream, client } from './config/redis-client';
-// import { getTimeStamp } from '$lib/utils/date-utils';
+
+const POCKETBASE = process.env['POCKETBASE'];
+const SESSION_TIMEOUT = process.env['SESSION_TIMEOUT'];
+const SESSION_PREFIX = process.env['SESSION_PREFIX'];
+const SESSION_ALL_ACTIVE = process.env['SESSION_ALL_ACTIVE'];
+
 const secure = process.env.NODE_ENV === 'production';
 
 export const createSession = async (loggedInUser) => {
