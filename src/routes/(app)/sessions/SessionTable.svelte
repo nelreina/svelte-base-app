@@ -17,13 +17,14 @@
 		</thead>
 		<tbody>
 			{#each sessions as active}
+				{@const isMe = active.username === username}
 				<tr>
-					<th>{active.username}</th>
-					<td>{active.email}</td>
-					<td>{active.role}</td>
-					<td>{active.loggedInAt}</td>
+					<th class="link link-hover link-info">{active.username}</th>
+					<td class:text-gray-500={isMe}>{active.email}</td>
+					<td class:text-gray-500={isMe}>{active.role}</td>
+					<td class:text-gray-500={isMe}>{active.loggedInAt}</td>
 					<td>
-						{#if active.username !== username}
+						{#if !isMe}
 							<form action="?/delete" method="POST">
 								<input type="hidden" name="session" value={active.session} />
 								<button type="submit" class="btn btn-link">Delete</button>
