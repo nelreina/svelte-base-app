@@ -24,5 +24,7 @@
 </script>
 
 <div>
+	<h3 class="text-xl mb-3 text-center">Strapi Demo Page (fetch Collection)</h3>
+
 	<SimpleTable data={data.mappings} {columns} />
 </div>
