@@ -1,26 +1,24 @@
 <script>
+	import SimpleTable from '$lib/components/SimpleTable.svelte';
+
 	export let products = [];
+	const columns = [
+		{
+			title: 'Name',
+			field: 'name'
+		},
+		{
+			title: 'Price $',
+			field: 'price',
+			type: 'number'
+		},
+		{
+			title: 'Stock Status',
+			field: 'inStock',
+			type: 'number'
+		}
+	];
 	// export let username;
 </script>
 
-<div class="overflow-x-auto card card-body shadow-md">
-	<table class="table w-full">
-		<!-- head -->
-		<thead>
-			<tr>
-				<th>Name</th>
-				<th>Price ANG</th>
-				<th>In Stock</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each products as prod}
-				<tr>
-					<td>{prod.name}</td>
-					<td>{prod.price}</td>
-					<td>{prod.inStock}</td>
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-</div>
+<SimpleTable data={products} {columns} />

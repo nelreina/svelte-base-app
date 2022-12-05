@@ -5,7 +5,10 @@
 
 	export let data;
 
-	const { username, isAdmin } = data;
+	const {
+		user: { username },
+		isAdmin
+	} = data;
 </script>
 
 <svelte:head>
@@ -25,6 +28,7 @@
 			<!-- Sidebar content here -->
 			<li><a href="{base}/dashboard">Dashboard</a></li>
 			<li><a href="{base}/products">Products</a></li>
+			<li><a href="{base}/strapi-collection-demo">Strapi Demo</a></li>
 		</ul>
 	</div>
 </div>

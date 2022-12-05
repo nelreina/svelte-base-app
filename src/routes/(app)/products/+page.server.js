@@ -17,3 +17,15 @@ export const load = async ({ locals }) => {
 		return { error: true, products: [] };
 	}
 };
+
+export const actions = {
+	// This function is called at runtime, not build time
+	default: async ({ request }) => {
+		const formData = await request.formData();
+		const data = Object.fromEntries(formData);
+		await pbAdmin.collection('products').create(data);
+		return {
+			success: true
+		};
+	}
+};

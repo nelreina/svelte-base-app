@@ -21,7 +21,7 @@
 			>
 		</label>
 
-		<a href={base} class="btn btn-ghost normal-case text-white text-xl">App Name</a>
+		<a href={base} class="btn btn-ghost normal-case text-white text-xl">base-app</a>
 	</div>
 	<div class="flex-none">
 		<div class="dropdown dropdown-end">
