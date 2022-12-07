@@ -6,8 +6,7 @@
 	export let data;
 
 	const {
-		user: { username },
-		isAdmin
+		user: { username, isAdmin }
 	} = data;
 </script>
 
